@@ -3,31 +3,34 @@ import useEditorStore from "../util/store";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:5000", { autoConnect: true });
+const socket = io("http://localhost:5000");
 
-export default function EditorComponent({ roomId }) {
+export default function EditorComponent({ roomId, password }) {
   const { code, setCode, language } = useEditorStore();
 
   useEffect(() => {
-    console.log("Room ID:", roomId);
-    if (!roomId) return;
+    console.log(`🔗 Subscribing to "codeUpdate" for room ${roomId}`);
 
-    // Join the WebSocket room
-    socket.emit("joinRoom", { roomId });
-
-    // Listen for real-time code updates
     const handleCodeUpdate = (updatedCode) => {
-      setCode(updatedCode);
+      if (!updatedCode) {
+        console.error("❌ Received empty or invalid code update!");
+      } else {
+        console.log(`📥 Received "codeUpdate" in room ${roomId}:`, updatedCode);
+        setCode(updatedCode);
+      }
     };
 
     socket.on("codeUpdate", handleCodeUpdate);
+    console.log("below codeUpdate listentner");
 
     return () => {
+      console.log(`🔌 Unsubscribing from "codeUpdate" for room ${roomId}`);
       socket.off("codeUpdate", handleCodeUpdate);
     };
-  }, [roomId]);
+  }, [setCode]);
 
   const handleChange = (newValue) => {
+    console.log(newValue);
     setCode(newValue || "");
 
     // Send updates via WebSockets

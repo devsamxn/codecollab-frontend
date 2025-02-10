@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { io } from "socket.io-client";
 import useEditorStore from "../util/store";
 import EditorComponent from "../components/EditorComponent";
@@ -13,39 +12,57 @@ export default function Home() {
   const [output, setOutput] = useState("");
   const [roomId, setRoomId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [password, setPassword] = useState(""); // Store password
 
   useEffect(() => {
     if (!roomId) return;
 
     // Join the room via WebSockets
-    socket.emit("joinRoom", { roomId });
+    // socket.emit("joinRoom", { roomId });
 
-    // Listen for real-time code updates from other users
-    socket.on("codeUpdate", (updatedCode) => {
+    // Listen for real-time code updates
+    const handleCodeUpdate = (updatedCode) => {
+      console.log(
+        "inside handleCodeUpdate after listening to codeUpdate: ",
+        updatedCode
+      );
       setCode(updatedCode);
-    });
+    };
+
+    // Listen for real-time output updates
+    const handleOutputUpdate = (updatedOutput) => {
+      console.log(
+        "inside handleCodeUpdate after listening to outputUpdate: ",
+        updatedOutput
+      );
+      setOutput(updatedOutput);
+      // setLoading(false); // Stop loading when execution finishes
+    };
+    const handleRunning = (state) => {
+      setLoading(state);
+    };
+
+    socket.on("codeUpdate", handleCodeUpdate);
+    socket.on("runningUpdate", handleRunning);
+    socket.on("outputUpdate", handleOutputUpdate);
 
     return () => {
-      socket.off("codeUpdate");
+      socket.off("codeUpdate", handleCodeUpdate);
+      socket.off("outputUpdate", handleOutputUpdate);
     };
   }, [roomId]);
 
-  const runCode = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.post("http://localhost:5000/code/run", {
-        language,
-        code,
-      });
-      setOutput(response.data.output);
-    } catch (error) {
-      setOutput("Error executing code");
-    }
-    setLoading(false);
+  const runCode = () => {
+    if (!roomId) return;
+
+    // setLoading(true);
+    socket.emit("codeRun", { roomId, language, code });
   };
 
-  const handleAuthenticated = (room) => {
+  const handleAuthenticated = (room, pass) => {
+    console.log("in home", room, pass);
     setRoomId(room);
+    setPassword(pass); // ✅ Save password
   };
 
   return roomId ? (
@@ -65,7 +82,7 @@ export default function Home() {
         </select>
       </div>
 
-      <EditorComponent roomId={roomId} />
+      <EditorComponent roomId={roomId} password={password} />
 
       <div className="p-4">
         <button
@@ -79,6 +96,6 @@ export default function Home() {
       </div>
     </div>
   ) : (
-    <RoomAuth onAuthenticated={handleAuthenticated} />
+    <RoomAuth onAuthenticated={handleAuthenticated} socket={socket} />
   );
 }

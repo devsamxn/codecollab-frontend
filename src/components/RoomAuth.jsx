@@ -1,22 +1,18 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:5000");
+// const socket = io("http://localhost:5000");
 
-export default function RoomAuth({ onAuthenticated }) {
+export default function RoomAuth({ onAuthenticated, socket }) {
   const [roomId, setRoomId] = useState("");
   const [password, setPassword] = useState("");
-  //   const [username, setUsername] = useState(""); // Track username
-  //   const [socketId, setSocketId] = useState(null);
   const [isCreatingRoom, setIsCreatingRoom] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Get socket ID when connected
     socket.on("connect", () => {
-      //   setSocketId(socket.id);
-      console.log("Socket ID received:", socket.id);
+      console.log("Socket connected:", socket.id);
     });
 
     return () => {
@@ -24,34 +20,32 @@ export default function RoomAuth({ onAuthenticated }) {
     };
   }, []);
 
-  const handleCreateRoom = async () => {
-    try {
-      const response = await axios.post("http://localhost:5000/rooms/create", {
-        password,
-      });
-      onAuthenticated(response.data.roomId);
-    } catch (err) {
-      setError("Failed to create room");
-    }
+  const handleCreateRoom = () => {
+    setLoading(true);
+    setError("");
+
+    socket.emit("createRoom", { password }, ({ roomId, error }) => {
+      setLoading(false);
+      if (error) {
+        setError(error);
+      } else {
+        onAuthenticated(roomId, password); // ✅ Send password to Home.js
+      }
+    });
   };
 
-  const handleJoinRoom = async () => {
-    // if (!socketId) {
-    //   setError("WebSocket connection not established.");
-    //   return;
-    // }
+  const handleJoinRoom = () => {
+    setLoading(true);
+    setError("");
 
-    try {
-      const response = await axios.post("http://localhost:5000/rooms/join", {
-        roomId,
-        password,
-      });
-      if (response.data.success) {
-        onAuthenticated(roomId);
+    socket.emit("joinRoom", { roomId, password }, ({ success, error }) => {
+      setLoading(false);
+      if (error) {
+        setError(error);
+      } else {
+        onAuthenticated(roomId, password); // ✅ Send password to Home.js
       }
-    } catch (err) {
-      setError("Invalid Room ID or Password");
-    }
+    });
   };
 
   return (
@@ -70,14 +64,6 @@ export default function RoomAuth({ onAuthenticated }) {
         />
       )}
 
-      {/* <input
-        type="text"
-        placeholder="Enter Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        className="p-2 bg-gray-700 rounded mb-2"
-      /> */}
-
       <input
         type="password"
         placeholder="Enter Password"
@@ -90,9 +76,14 @@ export default function RoomAuth({ onAuthenticated }) {
 
       <button
         onClick={isCreatingRoom ? handleCreateRoom : handleJoinRoom}
-        className="bg-blue-500 px-4 py-2 rounded"
+        className="bg-blue-500 px-4 py-2 rounded w-40 flex justify-center"
+        disabled={loading}
       >
-        {isCreatingRoom ? "Create Room" : "Join Room"}
+        {loading
+          ? "Processing..."
+          : isCreatingRoom
+          ? "Create Room"
+          : "Join Room"}
       </button>
 
       <button
