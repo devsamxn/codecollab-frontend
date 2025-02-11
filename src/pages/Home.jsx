@@ -17,52 +17,50 @@ export default function Home() {
   useEffect(() => {
     if (!roomId) return;
 
-    // Join the room via WebSockets
-    // socket.emit("joinRoom", { roomId });
-
     // Listen for real-time code updates
     const handleCodeUpdate = (updatedCode) => {
-      console.log(
-        "inside handleCodeUpdate after listening to codeUpdate: ",
-        updatedCode
-      );
+      console.log("📥 Received Code Update: ", updatedCode);
       setCode(updatedCode);
     };
 
     // Listen for real-time output updates
     const handleOutputUpdate = (updatedOutput) => {
-      console.log(
-        "inside handleCodeUpdate after listening to outputUpdate: ",
-        updatedOutput
-      );
+      console.log("📥 Received Output Update: ", updatedOutput);
       setOutput(updatedOutput);
-      // setLoading(false); // Stop loading when execution finishes
     };
-    const handleRunning = (state) => {
-      setLoading(state);
+
+    // Listen for running state update
+    const handleRunningUpdate = (isRunning) => {
+      console.log(
+        "⚡ Code Execution State:",
+        isRunning ? "Running..." : "Idle"
+      );
+      setLoading(isRunning);
     };
 
     socket.on("codeUpdate", handleCodeUpdate);
-    socket.on("runningUpdate", handleRunning);
     socket.on("outputUpdate", handleOutputUpdate);
+    socket.on("runningUpdate", handleRunningUpdate);
 
     return () => {
       socket.off("codeUpdate", handleCodeUpdate);
       socket.off("outputUpdate", handleOutputUpdate);
+      socket.off("runningUpdate", handleRunningUpdate);
     };
   }, [roomId]);
 
+  // 🔹 Emit the run code event and update all users
   const runCode = () => {
     if (!roomId) return;
-
-    // setLoading(true);
     socket.emit("codeRun", { roomId, language, code });
   };
 
-  const handleAuthenticated = (room, pass) => {
-    console.log("in home", room, pass);
+  // 🔹 Handle authentication and set room details
+  const handleAuthenticated = (room, pass, code) => {
+    console.log("🔑 Room Authenticated:", room);
     setRoomId(room);
-    setPassword(pass); // ✅ Save password
+    setPassword(pass); // ✅ Store password
+    setCode(code);
   };
 
   return roomId ? (
@@ -71,6 +69,7 @@ export default function Home() {
         Online IDE (Room: {roomId})
       </header>
 
+      {/* Language Selection Dropdown */}
       <div className="p-4">
         <select
           value={language}
@@ -82,8 +81,10 @@ export default function Home() {
         </select>
       </div>
 
-      <EditorComponent roomId={roomId} password={password} />
+      {/* Code Editor */}
+      <EditorComponent roomId={roomId} socket={socket} />
 
+      {/* Run Button & Output */}
       <div className="p-4">
         <button
           onClick={runCode}

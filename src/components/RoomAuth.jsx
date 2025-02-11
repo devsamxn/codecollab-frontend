@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
+import axios from "axios";
 
 // const socket = io("http://localhost:5000");
 
@@ -38,14 +39,18 @@ export default function RoomAuth({ onAuthenticated, socket }) {
     setLoading(true);
     setError("");
 
-    socket.emit("joinRoom", { roomId, password }, ({ success, error }) => {
-      setLoading(false);
-      if (error) {
-        setError(error);
-      } else {
-        onAuthenticated(roomId, password); // ✅ Send password to Home.js
+    socket.emit(
+      "joinRoom",
+      { roomId, password },
+      ({ success, error, code }) => {
+        setLoading(false);
+        if (error) {
+          setError(error);
+        } else {
+          onAuthenticated(roomId, password, code); // ✅ Send password to Home.js
+        }
       }
-    });
+    );
   };
 
   return (
