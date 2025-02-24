@@ -6,9 +6,10 @@ import EditorComponent from "../components/EditorComponent";
 import OutputComponent from "../components/OutputComponent";
 import RoomAuth from "../components/RoomAuth";
 import axios from "axios";
+import MyDropdown from "../components/MyDropdown";
 
 const socket = io(import.meta.env.VITE_BACKEND_URL);
-
+let languageOptions = ["javascript"];
 export default function Home() {
   const { language, setLanguage, code, setCode } = useEditorStore();
   const [output, setOutput] = useState("");
@@ -270,7 +271,12 @@ export default function Home() {
         <div className="text-lg font-bold text-white">
           Room: <span className="text-green-400">{roomId}</span>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center">
+          <MyDropdown
+            language={language}
+            setLanguage={setLanguage}
+            languageOptions={languageOptions}
+          />
           <button
             onClick={copyInviteLink}
             className="cursor-pointer bg-blue-500 px-4 py-2 rounded text-white text-sm"
