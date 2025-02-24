@@ -273,13 +273,13 @@ export default function Home() {
         <div className="flex gap-4">
           <button
             onClick={copyInviteLink}
-            className="bg-blue-500 px-4 py-2 rounded text-white text-sm"
+            className="cursor-pointer bg-blue-500 px-4 py-2 rounded text-white text-sm"
           >
             Copy Invite Link
           </button>
           <button
             onClick={handleLeaveRoom}
-            className="bg-red-500 px-4 py-2 rounded text-white text-sm"
+            className="cursor-pointer bg-red-500 px-4 py-2 rounded text-white text-sm"
           >
             Leave Room
           </button>
@@ -306,35 +306,35 @@ export default function Home() {
             />
           </div>
 
-          <div className="flex  justify-between mt-2">
+          <div className="flex gap-1 justify-between mt-2">
             <button
               onClick={() => toggleMedia("video")}
-              className={`px-4 py-2 rounded text-white ${
+              className={`cursor-pointer px-4 py-2 rounded text-white ${
                 videoEnabled ? "bg-red-500" : "bg-green-500"
               }`}
             >
-              {videoEnabled ? "Video Off" : "Video On"}
+              {videoEnabled ? "turn video Off" : "turn video On"}
             </button>
             <button
               onClick={() => toggleMedia("audio")}
-              className={`px-4 py-2 rounded text-white ${
+              className={`cursor-pointer px-4 py-2 rounded text-white ${
                 audioEnabled ? "bg-red-500" : "bg-green-500"
               }`}
             >
-              {audioEnabled ? "Audio Off" : "Audio On"}
+              {audioEnabled ? "turn audio Off" : "turn audio On"}
             </button>
             <button
               onClick={runCode}
-              className="bg-green-500 px-4 py-2 rounded text-white"
+              className="cursor-pointer bg-green-500 px-4 py-2 rounded text-white"
             >
-              {loading ? "Running..." : "Run Code"}
+              {loading ? "running..." : "run code"}
             </button>
             <button
               onClick={saveCode}
-              className="bg-blue-500 px-4 py-2 rounded text-white"
+              className="cursor-pointer bg-blue-500 px-4 py-2 rounded text-white"
               disabled={saving}
             >
-              {saving ? "Saving..." : "Save Code"}
+              {saving ? "saving..." : "save code online"}
             </button>
           </div>
           <div className=" mt-5 flex-1 overflow-auto">
