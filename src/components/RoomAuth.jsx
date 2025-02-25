@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import CabinDropdown from "./CabinDropdown";
 
 export default function RoomAuth({ onAuthenticated, socket }) {
   const [roomId, setRoomId] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [rooms, setRooms] = useState([]);
   const [isCreatingRoom, setIsCreatingRoom] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
   // 🔹 Auto-Fill Room ID & Password from Invite Link
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -24,17 +22,6 @@ export default function RoomAuth({ onAuthenticated, socket }) {
       //   position: "top-right",
       // });
     }
-  }, []);
-
-  // 🔹 Fetch Room IDs from API
-  useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BACKEND_URL}/rooms/list`)
-      .then((res) => {
-        setRooms(res.data);
-        console.log(res.data);
-      })
-      .catch((err) => console.error("Error fetching rooms:", err));
   }, []);
 
   // 🔹 Handle Room Creation
@@ -91,11 +78,11 @@ export default function RoomAuth({ onAuthenticated, socket }) {
 
       {/* 🔹 Left Section: Room Selection */}
       <div className="w-1/2 flex flex-col items-center justify-center border-r border-gray-700 p-6">
-        <h2 className="text-lg font-bold mb-4">Available Rooms</h2>
-
+        <h2 className="text-3xl font-bold mb-4">Available Rooms</h2>
+        <CabinDropdown setRoomId={setRoomId} roomId={roomId} />
         {/* 🔹 Dropdown for Room Selection */}
         <div className="relative w-64">
-          <button
+          {/* <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
             className="w-full bg-gray-700 p-3 rounded text-left"
           >
@@ -123,14 +110,14 @@ export default function RoomAuth({ onAuthenticated, socket }) {
                 </p>
               )}
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
       {/* 🔹 Right Section: Join/Create Room */}
       <div className="w-1/2 flex flex-col items-center justify-center p-6">
         <div className="bg-gray-800 p-6 rounded-lg shadow-md w-96">
-          <h1 className="text-xl font-bold mb-4 text-center">
+          <h1 className="text-3xl font-bold mb-4 text-center">
             {isCreatingRoom ? "Create a New Room" : "Join an Existing Room"}
           </h1>
 
@@ -140,7 +127,7 @@ export default function RoomAuth({ onAuthenticated, socket }) {
             placeholder="Enter Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="p-2 w-full bg-gray-700 rounded mb-4 text-center"
+            className="p-2 w-full bg-gray-700 rounded mb-4 text-center text-lg"
           />
 
           {error && <p className="text-red-500 mb-2 text-center">{error}</p>}
@@ -148,7 +135,7 @@ export default function RoomAuth({ onAuthenticated, socket }) {
           {/* 🔹 Join/Create Room Button */}
           <button
             onClick={isCreatingRoom ? handleCreateRoom : handleJoinRoom}
-            className="bg-blue-500 w-full px-4 py-2 rounded text-white mb-4"
+            className="hover:bg-blue-700 bg-blue-500  duration-300 transition-colors cursor-pointer w-full px-4 py-2 rounded text-white mb-4 text-lg"
             disabled={loading || (!isCreatingRoom && !roomId)}
           >
             {loading
@@ -161,7 +148,7 @@ export default function RoomAuth({ onAuthenticated, socket }) {
           {/* 🔹 Toggle Between Join/Create */}
           <button
             onClick={() => setIsCreatingRoom(!isCreatingRoom)}
-            className="text-sm text-gray-400 underline block text-center w-full"
+            className="text-lg underline block text-center w-full hover:tracking-wide cursor-pointer text-white"
           >
             {isCreatingRoom ? "Join an Existing Room" : "Create a New Room"}
           </button>

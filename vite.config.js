@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { heroui } from "@heroui/react";
 
 export default defineConfig(() => {
   return {
@@ -8,6 +9,7 @@ export default defineConfig(() => {
       host: true, // Allows access from LAN
       https: false, // ✅ Disable HTTPS locally (fix)
     },
-    plugins: [react(), tailwindcss()],
+    darkmode: "class",
+    plugins: [react(), tailwindcss(), heroui()],
   };
 });

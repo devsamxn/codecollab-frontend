@@ -6,10 +6,11 @@ import EditorComponent from "../components/EditorComponent";
 import OutputComponent from "../components/OutputComponent";
 import RoomAuth from "../components/RoomAuth";
 import axios from "axios";
-import MyDropdown from "../components/MyDropdown";
+// import MyDropdown from "../components/MyDropdown";
+import LanguageDropdown from "../components/LanguageDropdown";
+import MyButton from "../components/MyButton";
 
 const socket = io(import.meta.env.VITE_BACKEND_URL);
-let languageOptions = ["javascript"];
 export default function Home() {
   const { language, setLanguage, code, setCode } = useEditorStore();
   const [output, setOutput] = useState("");
@@ -268,27 +269,25 @@ export default function Home() {
     <div className="h-screen flex flex-col bg-gray-900 text-white overflow-hidden">
       <ToastContainer />
       <header className="p-4 bg-gradient-to-r from-gray-800 to-gray-900 shadow-md flex justify-between items-center">
-        <div className="text-lg font-bold text-white">
+        <div className="font-bold text-white text-xl">
           Room: <span className="text-green-400">{roomId}</span>
         </div>
         <div className="flex gap-4 items-center">
-          <MyDropdown
-            language={language}
-            setLanguage={setLanguage}
-            languageOptions={languageOptions}
-          />
-          <button
+          <LanguageDropdown language={language} setLanguage={setLanguage} />
+          <MyButton onClick={copyInviteLink} text="Copy Invite Link" />
+          <MyButton onClick={handleLeaveRoom} text="Leave Room" />
+          {/* <button
             onClick={copyInviteLink}
             className="cursor-pointer bg-blue-500 px-4 py-2 rounded text-white text-sm"
           >
             Copy Invite Link
-          </button>
-          <button
+          </button> */}
+          {/* <button
             onClick={handleLeaveRoom}
             className="cursor-pointer bg-red-500 px-4 py-2 rounded text-white text-sm"
           >
             Leave Room
-          </button>
+          </button> */}
         </div>
       </header>
 
@@ -313,35 +312,55 @@ export default function Home() {
           </div>
 
           <div className="flex gap-1 justify-between mt-2">
-            <button
+            <MyButton
+              onClick={() => toggleMedia("video")}
+              text={videoEnabled ? "turn video off" : "turn video on"}
+              color={videoEnabled ? "bg-red-400" : "bg-green-400"}
+            />
+            <MyButton
+              onClick={() => toggleMedia("audio")}
+              text={audioEnabled ? "turn audio off" : "turn audio on"}
+              color={audioEnabled ? "bg-red-400" : "bg-green-400"}
+            />
+            <MyButton
+              onClick={runCode}
+              text={loading ? "" : "run code"}
+              isLoading={loading}
+            />
+            <MyButton
+              onClick={saveCode}
+              text={saving ? "saving..." : "save code online"}
+              isLoading={saving}
+            />
+            {/* <button
               onClick={() => toggleMedia("video")}
               className={`cursor-pointer px-4 py-2 rounded text-white ${
                 videoEnabled ? "bg-red-500" : "bg-green-500"
               }`}
-            >
-              {videoEnabled ? "turn video Off" : "turn video On"}
-            </button>
-            <button
+            > */}
+            {/* {videoEnabled ? "turn video Off" : "turn video On"}
+            </button> */}
+            {/* <button
               onClick={() => toggleMedia("audio")}
               className={`cursor-pointer px-4 py-2 rounded text-white ${
                 audioEnabled ? "bg-red-500" : "bg-green-500"
               }`}
             >
               {audioEnabled ? "turn audio Off" : "turn audio On"}
-            </button>
-            <button
+            </button> */}
+            {/* <button
               onClick={runCode}
               className="cursor-pointer bg-green-500 px-4 py-2 rounded text-white"
             >
               {loading ? "running..." : "run code"}
-            </button>
-            <button
+            </button> */}
+            {/* <button
               onClick={saveCode}
               className="cursor-pointer bg-blue-500 px-4 py-2 rounded text-white"
               disabled={saving}
             >
               {saving ? "saving..." : "save code online"}
-            </button>
+            </button> */}
           </div>
           <div className=" mt-5 flex-1 overflow-auto">
             <OutputComponent output={output} />
