@@ -139,7 +139,7 @@ export default function RoomAuth({ onAuthenticated, socket }) {
             disabled={loading || (!isCreatingRoom && !roomId)}
           >
             {loading
-              ? "Processing..."
+              ? "letting you in..."
               : isCreatingRoom
               ? "Create Room"
               : "Join Room"}
